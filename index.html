@@ -1,0 +1,1333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Ammora Launchpad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f4f6f4;
+        --surface: #ffffff;
+        --surface-2: #edf1ee;
+        --ink: #0d130f;
+        --ink-2: #48554e;
+        --ink-3: #71817a;
+        --line: #d9e1db;
+        --accent: #0b7a55;
+        --accent-strong: #095f43;
+        --accent-ink: #ffffff;
+        --accent-soft: #e0f2ea;
+        --warn-bg: #fdf2dc;
+        --warn-ink: #75530c;
+        --warn-line: #ecd9a8;
+        --danger: #b3261e;
+        --danger-soft: #fbeae8;
+        --ok: #0b7a55;
+        --shadow: 0 1px 2px rgba(13, 19, 15, 0.05), 0 8px 24px -18px rgba(13, 19, 15, 0.25);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0a0e0b;
+          --surface: #111613;
+          --surface-2: #1a201c;
+          --ink: #e9f0ea;
+          --ink-2: #a5b6aa;
+          --ink-3: #77887d;
+          --line: #263029;
+          --accent: #2fd68f;
+          --accent-strong: #5ce3a6;
+          --accent-ink: #052416;
+          --accent-soft: #123527;
+          --warn-bg: #2c2310;
+          --warn-ink: #eac87e;
+          --warn-line: #54451c;
+          --danger: #ff9a8a;
+          --danger-soft: #3a1d19;
+          --ok: #2fd68f;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -18px rgba(0, 0, 0, 0.8);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      button, input, select { font: inherit; }
+      button, [role="button"], select, input:not([type="checkbox"], [type="radio"]) { min-height: 2.75rem; }
+
+      .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px 64px; }
+
+      /* ---------- top status bar ---------- */
+      .topbar {
+        position: sticky; top: 0; z-index: 20;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .topbar-in {
+        max-width: 920px; margin: 0 auto; padding: 10px 16px;
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      }
+      .net { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-3); flex: none; }
+      .dot.live { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      .dot.bad { background: var(--danger); }
+      .net .block { color: var(--ink-3); font-weight: 500; }
+      .topbar .spacer { flex: 1; }
+      .wallet-chip {
+        display: none; align-items: center; gap: 8px;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+        padding: 5px 12px 5px 8px; font-size: 0.85rem;
+      }
+      .wallet-chip.on { display: inline-flex; }
+      .wallet-chip .avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); flex: none; }
+      .wallet-chip .bal { color: var(--ink-2); }
+
+      /* ---------- intro ---------- */
+      .intro { padding: 26px 0 6px; }
+      .intro h1 { font-size: clamp(1.55rem, 4.5vw, 2.15rem); line-height: 1.12; margin: 0 0 10px; font-weight: 800; letter-spacing: -0.02em; }
+      .intro p { margin: 0; color: var(--ink-2); max-width: 62ch; }
+      .intro p strong { color: var(--ink); }
+
+      .notice {
+        margin: 18px 0 4px; padding: 12px 14px;
+        background: var(--warn-bg); color: var(--warn-ink);
+        border: 1px solid var(--warn-line); border-radius: 12px;
+        font-size: 0.9rem; display: flex; gap: 10px;
+      }
+      .notice svg { flex: none; margin-top: 2px; }
+
+      /* ---------- step cards ---------- */
+      .steps { display: grid; gap: 18px; margin-top: 20px; }
+      .card {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+        box-shadow: var(--shadow); padding: 20px;
+      }
+      .card-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 6px; }
+      .card-head > div:nth-child(2) { flex: 1 1 240px; min-width: 0; }
+      @media (max-width: 640px) {
+        .card-head { flex-wrap: wrap; }
+        .card-head .state { margin-left: 48px; }
+      }
+      .stepnum {
+        flex: none; width: 34px; height: 34px; border-radius: 10px;
+        background: var(--ink); color: var(--bg);
+        display: grid; place-items: center; font-weight: 800; font-size: 0.95rem;
+      }
+      .card.done .stepnum { background: var(--accent); color: var(--accent-ink); }
+      .card-head h2 { margin: 2px 0 2px; font-size: 1.18rem; font-weight: 700; letter-spacing: -0.01em; }
+      .card-head p { margin: 0; color: var(--ink-2); font-size: 0.92rem; }
+      .card-head .state { margin-left: auto; flex: none; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+        background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line);
+      }
+      .pill.ok { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+      .pill.warn { background: var(--warn-bg); color: var(--warn-ink); border-color: var(--warn-line); }
+
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+      @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+      .field { display: grid; gap: 6px; margin-top: 12px; }
+      .field label { font-size: 0.83rem; font-weight: 600; color: var(--ink-2); }
+      .field .hint { font-size: 0.78rem; color: var(--ink-3); }
+      input[type="text"], input[type="number"], input[inputmode] {
+        width: 100%; padding: 10px 12px; border-radius: 10px;
+        border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+        outline: none;
+      }
+      input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      input:disabled { opacity: 0.55; }
+      input.mono { font-size: 0.88rem; }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        border-radius: 11px; border: 1px solid transparent; cursor: pointer;
+        padding: 10px 18px; font-weight: 700; font-size: 0.95rem;
+        background: var(--accent); color: var(--accent-ink);
+        transition: background 0.15s ease, transform 0.05s ease;
+      }
+      .btn:hover { background: var(--accent-strong); }
+      .btn:active { transform: translateY(1px); }
+      .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+      .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+      .btn.ghost:hover { border-color: var(--ink-3); background: var(--surface-2); }
+      .btn.small { padding: 6px 12px; font-size: 0.85rem; min-height: 2.25rem; border-radius: 9px; }
+      .btn.block { width: 100%; margin-top: 14px; }
+      .btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+      .btnrow .btn { flex: 1; min-width: 150px; }
+
+      .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 14px; }
+      .kv > div { background: var(--surface); padding: 10px 12px; }
+      .kv dt { font-size: 0.72rem; font-weight: 600; color: var(--ink-3); margin: 0 0 2px; }
+      .kv dd { margin: 0; font-weight: 600; font-size: 0.95rem; overflow-wrap: anywhere; }
+      .kv dd.small { font-size: 0.8rem; }
+
+      .msg { margin-top: 12px; padding: 10px 12px; border-radius: 10px; font-size: 0.88rem; display: none; }
+      .msg.show { display: block; }
+      .msg.err { background: var(--danger-soft); color: var(--danger); }
+      .msg.okm { background: var(--accent-soft); color: var(--accent); }
+      .msg.inf { background: var(--surface-2); color: var(--ink-2); }
+
+      .result-box { margin-top: 14px; border: 1px dashed var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; display: none; }
+      .result-box.show { display: block; }
+      .result-box .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.9rem; }
+      .result-box .row + .row { margin-top: 6px; }
+      .result-box .k { color: var(--ink-2); font-size: 0.8rem; font-weight: 600; min-width: 86px; }
+      .copybtn { border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 7px; padding: 2px 8px; font-size: 0.75rem; cursor: pointer; min-height: 1.8rem; }
+      .copybtn:hover { color: var(--ink); }
+
+      /* trade */
+      .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; padding: 4px; gap: 4px; margin-top: 14px; }
+      .seg button { border: 0; background: transparent; border-radius: 8px; font-weight: 700; cursor: pointer; color: var(--ink-2); min-height: 2.5rem; }
+      .seg button.on-buy { background: var(--accent); color: var(--accent-ink); }
+      .seg button.on-sell { background: var(--danger); color: #fff; }
+      @media (prefers-color-scheme: dark) { .seg button.on-sell { color: #2b0f0b; } }
+      .progress { height: 10px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin-top: 8px; border: 1px solid var(--line); }
+      .progress > i { display: block; height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; }
+      .balrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+      .balchip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 0.83rem; }
+      .balchip b { font-weight: 700; }
+      .quotebox { margin-top: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; display: none; }
+      .quotebox.show { display: block; }
+      .quotebox .qrow { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+      .quotebox .qrow span:first-child { color: var(--ink-2); }
+      .quotebox .qrow span:last-child { font-weight: 600; text-align: right; }
+      .amountwrap { position: relative; }
+      .amountwrap .maxbtn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: var(--surface); border: 1px solid var(--line); color: var(--accent); font-weight: 700; font-size: 0.75rem; border-radius: 7px; padding: 4px 10px; cursor: pointer; min-height: 2rem; }
+
+      /* activity */
+      .log { margin-top: 8px; display: grid; gap: 0; }
+      .log-item { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 0.88rem; align-items: baseline; }
+      .log-item:last-child { border-bottom: 0; }
+      .log-item time { color: var(--ink-3); font-size: 0.78rem; flex: none; }
+      .log-item .txt { flex: 1; overflow-wrap: anywhere; }
+      .log-empty { color: var(--ink-3); font-size: 0.9rem; padding: 8px 0; }
+
+      footer { margin-top: 26px; color: var(--ink-2); font-size: 0.85rem; }
+      footer h3 { color: var(--ink); font-size: 0.95rem; margin: 0 0 8px; }
+      .addr-list { display: grid; gap: 6px; }
+      .addr-list .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+      .addr-list .k { min-width: 130px; color: var(--ink-3); font-size: 0.8rem; font-weight: 600; }
+      .links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+      .spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: spin 0.7s linear infinite; display: inline-block; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } .progress > i { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="topbar-in">
+        <div class="net">
+          <span class="dot" id="netDot"></span>
+          <span>GIWA Sepolia</span>
+          <span class="block mono" id="netBlock">chain 91342</span>
+        </div>
+        <div class="spacer"></div>
+        <span class="wallet-chip" id="walletChip">
+          <span class="avatar"></span>
+          <span class="mono" id="walletAddr">—</span>
+          <span class="bal mono" id="walletBal"></span>
+        </span>
+        <button class="btn small" id="connectBtn">Connect wallet</button>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="intro">
+        <h1>Launch a token on Ammora</h1>
+        <p>Create your own launch <strong>Config</strong>, issue a token on its bonding curve, trade it up to <strong>graduation</strong>, then claim the fees it earns. Everything runs in your browser against the Ammora protocol contracts on <strong>GIWA Sepolia</strong> — built with <strong>@ammora-protocol/sdk 0.3.9</strong>.</p>
+      </div>
+
+      <div class="notice" role="note">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v5m0 3.5v.5M10.3 3.8 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><strong>Testnet only.</strong> Ammora is beta software that has not completed an independent security audit, and GIWA Sepolia ETH/WETH have no real value. Never use this flow with real funds.</span>
+      </div>
+
+      <div class="steps">
+        <!-- STEP 1 · CONFIG -->
+        <section class="card" id="cardConfig">
+          <div class="card-head">
+            <div class="stepnum">1</div>
+            <div>
+              <h2>Create your launchpad Config</h2>
+              <p>A Config is the reusable, immutable policy your tokens launch under: supply, curve, fees, graduation threshold and who receives the fees. Creating one needs no Ammora approval — the Config owner is you.</p>
+            </div>
+            <div class="state"><span class="pill" id="configState">Not created</span></div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="tplId">Template Config ID</label>
+              <input type="text" inputmode="numeric" id="tplId" value="4" />
+              <span class="hint">Your Config clones this reviewed template's fees, vesting and LP ratios — only recipients, sale supply and the graduation threshold change.</span>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="btn ghost" id="tplLoadBtn">Load template</button>
+              <span class="hint" id="tplStatus">Loading template #4 from the registry…</span>
+            </div>
+          </div>
+
+          <dl class="kv" id="tplKv" style="display:none"></dl>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="saleSupply">Sale supply (tokens)</label>
+              <input type="text" inputmode="decimal" id="saleSupply" value="250000" />
+              <span class="hint">Tokens sold along the curve before graduation.</span>
+            </div>
+            <div class="field">
+              <label for="threshold">Graduation threshold (WETH)</label>
+              <input type="text" inputmode="decimal" id="threshold" value="0.0005" />
+              <span class="hint">Quote raised on the curve that triggers graduation to the ARL pool.</span>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="rcOwner">Config owner</label>
+              <input type="text" class="mono" id="rcOwner" placeholder="0x…" />
+              <span class="hint">Must be the wallet you sign with — the registry requires caller = owner.</span>
+            </div>
+            <div class="field">
+              <label for="rcPartner">Partner fee recipient</label>
+              <input type="text" class="mono" id="rcPartner" placeholder="0x…" />
+              <span class="hint">Receives the partner share of trading fees (the launchpad's cut).</span>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="rcLp">Liquidity partner (LP beneficiary)</label>
+              <input type="text" class="mono" id="rcLp" placeholder="0x…" />
+              <span class="hint">Receives the partner share of graduation LP positions.</span>
+            </div>
+            <div class="field">
+              <label for="rcLeftover">Leftover receiver</label>
+              <input type="text" class="mono" id="rcLeftover" placeholder="0x…" />
+              <span class="hint">Receives unsold/leftover base tokens after migration.</span>
+            </div>
+          </div>
+
+          <dl class="kv" id="deriveKv" style="display:none"></dl>
+          <div class="msg" id="configMsg"></div>
+          <button class="btn block" id="createConfigBtn" disabled>Create Config</button>
+          <div class="result-box" id="configResult"></div>
+        </section>
+
+        <!-- STEP 2 · LAUNCH -->
+        <section class="card" id="cardLaunch">
+          <div class="card-head">
+            <div class="stepnum">2</div>
+            <div>
+              <h2>Issue a token</h2>
+              <p>Creates a new token and its pre-graduation bonding curve (ALC) in one transaction, under the Config you choose. You sign as the token's Creator.</p>
+            </div>
+            <div class="state"><span class="pill" id="launchState">No token yet</span></div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="launchConfigId">Config ID</label>
+              <input type="text" inputmode="numeric" id="launchConfigId" placeholder="e.g. 4" />
+              <span class="hint">Your Config from step 1, or any enabled Config ID on the registry.</span>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="btn ghost" id="launchConfigLoadBtn">Load Config</button>
+              <span class="hint" id="launchConfigStatus">No Config loaded.</span>
+            </div>
+          </div>
+          <dl class="kv" id="launchKv" style="display:none"></dl>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="tokName">Token name</label>
+              <input type="text" id="tokName" placeholder="My Launch Token" maxlength="64" />
+            </div>
+            <div class="field">
+              <label for="tokSymbol">Symbol</label>
+              <input type="text" id="tokSymbol" placeholder="MLT" maxlength="16" />
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="tokMeta">Metadata URI</label>
+              <input type="text" class="mono" id="tokMeta" placeholder="ipfs://… or https://…" />
+              <span class="hint">Link to the token's metadata JSON (name, image, description).</span>
+            </div>
+            <div class="field">
+              <label for="tokCreatorMeta">Creator metadata URI <span style="color:var(--ink-3)">(optional)</span></label>
+              <input type="text" class="mono" id="tokCreatorMeta" placeholder="ipfs://…" />
+            </div>
+          </div>
+          <div class="msg" id="launchMsg"></div>
+          <div class="msg inf" id="predictBox" style="display:none"></div>
+          <button class="btn block" id="createLaunchBtn" disabled>Create token + curve</button>
+          <div class="result-box" id="launchResult"></div>
+        </section>
+
+        <!-- STEP 3 · TRADE -->
+        <section class="card" id="cardTrade">
+          <div class="card-head">
+            <div class="stepnum">3</div>
+            <div>
+              <h2>Trade on the curve</h2>
+              <p>Buy and sell against the bonding curve with WETH. When the curve raises its graduation threshold it becomes <em>ReadyToMigrate</em> — migration is a separate, permissionless transaction that creates the ARL pool.</p>
+            </div>
+            <div class="state"><span class="pill" id="tradeState">No launch loaded</span></div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="loadAddr">Token or curve address</label>
+              <input type="text" class="mono" id="loadAddr" placeholder="0x…" />
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="btn ghost" id="loadLaunchBtn">Load launch</button>
+            </div>
+          </div>
+
+          <div id="tradeBody" style="display:none">
+            <dl class="kv" id="tradeKv"></dl>
+            <div style="margin-top:14px">
+              <div style="display:flex;justify-content:space-between;font-size:0.83rem;color:var(--ink-2)"><span>Graduation progress (quote raised)</span><span class="mono" id="progLabel">—</span></div>
+              <div class="progress"><i id="progFill"></i></div>
+            </div>
+            <div class="balrow" id="balRow"></div>
+            <div class="btnrow" id="curveActions" style="display:none">
+              <button class="btn" id="migrateBtn">Migrate to ARL pool</button>
+              <button class="btn ghost" id="surplusBtn">Claim surplus</button>
+            </div>
+
+            <div class="seg" role="tablist" aria-label="Trade direction">
+              <button id="tabBuy" class="on-buy">Buy</button>
+              <button id="tabSell">Sell</button>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label for="tradeAmount" id="tradeAmountLabel">You pay (WETH)</label>
+                <div class="amountwrap">
+                  <input type="text" inputmode="decimal" id="tradeAmount" placeholder="0.0" />
+                  <button class="maxbtn" id="maxBtn">MAX</button>
+                </div>
+                <span class="hint" id="tradeBalHint"></span>
+              </div>
+              <div class="field">
+                <label for="slippage">Slippage tolerance (%)</label>
+                <input type="text" inputmode="decimal" id="slippage" value="1" />
+                <span class="hint">Quotes come from the curve contract itself, refreshed as you type.</span>
+              </div>
+            </div>
+            <div class="quotebox" id="quoteBox"></div>
+            <div class="msg" id="tradeMsg"></div>
+            <div class="btnrow">
+              <button class="btn ghost" id="wrapBtn">Wrap ETH → WETH</button>
+              <button class="btn" id="swapBtn" disabled>Buy</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 4 · FEES -->
+        <section class="card" id="cardFees">
+          <div class="card-head">
+            <div class="stepnum">4</div>
+            <div>
+              <h2>Claim fees</h2>
+              <p>Trading and pool-creation fees accrue to creators and partners in the protocol FeeVault. Claim what's owed to your wallet, per asset.</p>
+            </div>
+            <div class="state"><span class="pill" id="feesState">—</span></div>
+          </div>
+          <div id="feesBody">
+            <dl class="kv" id="feesKv"></dl>
+            <div class="msg" id="feesMsg"></div>
+            <div class="btnrow">
+              <button class="btn ghost" id="feesRefreshBtn">Refresh claimable</button>
+              <button class="btn" id="claimWethBtn" disabled>Claim WETH</button>
+              <button class="btn" id="claimTokBtn" disabled style="display:none">Claim token</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ACTIVITY -->
+        <section class="card" id="cardLog">
+          <div class="card-head">
+            <div class="stepnum" aria-hidden="true">✓</div>
+            <div>
+              <h2>Activity</h2>
+              <p>Everything this page does, in order. Transactions link to the GIWA Sepolia explorer.</p>
+            </div>
+          </div>
+          <div class="log" id="logList"><div class="log-empty">Nothing yet — load a template or connect a wallet to begin.</div></div>
+        </section>
+      </div>
+
+      <footer>
+        <h3>Protocol contracts · GIWA Sepolia (91342)</h3>
+        <div class="addr-list" id="addrList"></div>
+        <div class="links">
+          <a href="https://www.npmjs.com/package/@ammora-protocol/sdk" target="_blank" rel="noopener">@ammora-protocol/sdk on npm</a>
+          <a href="https://github.com/AmmoraLabs/ammora-examples/blob/main/LAUNCHPAD.md" target="_blank" rel="noopener">Official launchpad guide</a>
+          <a href="https://sepolia-explorer.giwa.io" target="_blank" rel="noopener">GIWA Sepolia explorer</a>
+        </div>
+        <p style="margin-top:14px">Config derivation, curve math and calldata on this page follow the SDK's published algorithms (@ammora-protocol/math 0.3.0) and the V4 auto-route deployment. Your keys never leave your wallet — the page prepares transactions, you review and sign them.</p>
+      </footer>
+    </div>
+
+<script>
+"use strict";
+/* ================= constants ================= */
+var CHAIN_ID = 91342;
+var CHAIN_HEX = "0x" + CHAIN_ID.toString(16);
+var RPC_URL = "https://sepolia-rpc.giwa.io";
+var EXPLORER = "https://sepolia-explorer.giwa.io";
+var FACTORY = "0x35353a2Dab7426EcCAe6f5FB267702a542ab68fA";
+var REGISTRY = "0x6d043014972b87406C4757a5f2d655A24e0b0aF9";
+var WETH = "0x4200000000000000000000000000000000000006";
+var FEEVAULT_FALLBACK = "0x414Be4a093fDFd7292dCa95C4D6fdD3905Ee6800";
+var SDK_ABI = {"registry":[{"type":"function","name":"createConfig","stateMutability":"nonpayable","inputs":[{"name":"config","type":"tuple","components":[{"name":"quoteToken","type":"address"},{"name":"partnerRecipient","type":"address"},{"name":"poolCreationFee","type":"uint256"},{"name":"totalSupply","type":"uint256"},{"name":"tokenDecimals","type":"uint8"},{"name":"startSqrtPrice","type":"uint128"},{"name":"cliffFeeBps","type":"uint16"},{"name":"creatorShareOfNonProtocolBps","type":"uint16"},{"name":"feeNumberOfPeriods","type":"uint16"},{"name":"feePeriodFrequency","type":"uint32"},{"name":"feeReductionFactorBps","type":"uint16"},{"name":"feeSchedulerMode","type":"uint8"},{"name":"rateLimiterEnabled","type":"bool"},{"name":"rateLimiterFeeIncrementBps","type":"uint16"},{"name":"rateLimiterDuration","type":"uint40"},{"name":"rateLimiterReferenceAmount","type":"uint256"},{"name":"dynamicFeeEnabled","type":"bool"},{"name":"maxVolatilityAccumulator","type":"uint32"},{"name":"variableFeeControl","type":"uint32"},{"name":"dynamicFeeBinStepBps","type":"uint16"},{"name":"dynamicFeeFilterPeriod","type":"uint16"},{"name":"dynamicFeeDecayPeriod","type":"uint16"},{"name":"dynamicFeeReductionFactorBps","type":"uint16"},{"name":"dynamicFeeBinStepQ64","type":"uint128"},{"name":"collectFeeMode","type":"uint8"},{"name":"enableFirstSwapWithMinFee","type":"bool"},{"name":"migrationQuoteThreshold","type":"uint256"},{"name":"migrationBaseThreshold","type":"uint256"},{"name":"leftoverReceiver","type":"address"},{"name":"migrationQuoteFeeBps","type":"uint16"},{"name":"creatorMigrationFeeShareBps","type":"uint16"},{"name":"postMigrationFeeBps","type":"uint16"},{"name":"postMigrationCompoundingFeeBps","type":"uint16"},{"name":"postMigrationCollectFeeMode","type":"uint8"},{"name":"migrationMode","type":"uint8"},{"name":"postMigrationSqrtMinPrice","type":"uint128"},{"name":"postMigrationSqrtMaxPrice","type":"uint128"},{"name":"postMigrationLiquidity","type":"uint256"},{"name":"liquidityDistribution","type":"tuple","components":[{"name":"partner","type":"address"},{"name":"partnerUnlockedBps","type":"uint16"},{"name":"partnerPermanentLockedBps","type":"uint16"},{"name":"creatorPermanentLockedBps","type":"uint16"},{"name":"partnerVesting","type":"tuple","components":[{"name":"allocationBps","type":"uint16"},{"name":"bpsPerPeriod","type":"uint16"},{"name":"numberOfPeriods","type":"uint16"},{"name":"periodFrequency","type":"uint32"},{"name":"cliffDuration","type":"uint32"}]},{"name":"creatorVesting","type":"tuple","components":[{"name":"allocationBps","type":"uint16"},{"name":"bpsPerPeriod","type":"uint16"},{"name":"numberOfPeriods","type":"uint16"},{"name":"periodFrequency","type":"uint32"},{"name":"cliffDuration","type":"uint32"}]}]},{"name":"lockedBaseVesting","type":"tuple","components":[{"name":"cliffUnlockAmount","type":"uint128"},{"name":"amountPerPeriod","type":"uint128"},{"name":"numberOfPeriods","type":"uint32"},{"name":"frequency","type":"uint64"},{"name":"cliffDuration","type":"uint64"}]},{"name":"postMigrationFeeNumberOfPeriods","type":"uint16"},{"name":"postMigrationFeePeriodFrequency","type":"uint32"},{"name":"postMigrationFeeReductionFactorBps","type":"uint16"},{"name":"postMigrationFeeSchedulerMode","type":"uint8"},{"name":"activationDelay","type":"uint40"},{"name":"activationType","type":"uint8"}]},{"name":"curve","type":"tuple[]","components":[{"name":"lowerSqrtPrice","type":"uint128"},{"name":"upperSqrtPrice","type":"uint128"},{"name":"liquidity","type":"uint256"}]},{"name":"configOwner","type":"address"}],"outputs":[{"name":"configId","type":"uint256"},{"name":"configHash","type":"bytes32"}],"_sel":"0x99da4ed4"},{"type":"function","name":"get","stateMutability":"view","inputs":[{"name":"configId","type":"uint256"}],"outputs":[{"name":"config","type":"tuple","components":[{"name":"quoteToken","type":"address"},{"name":"partnerRecipient","type":"address"},{"name":"poolCreationFee","type":"uint256"},{"name":"totalSupply","type":"uint256"},{"name":"tokenDecimals","type":"uint8"},{"name":"startSqrtPrice","type":"uint128"},{"name":"cliffFeeBps","type":"uint16"},{"name":"creatorShareOfNonProtocolBps","type":"uint16"},{"name":"feeNumberOfPeriods","type":"uint16"},{"name":"feePeriodFrequency","type":"uint32"},{"name":"feeReductionFactorBps","type":"uint16"},{"name":"feeSchedulerMode","type":"uint8"},{"name":"rateLimiterEnabled","type":"bool"},{"name":"rateLimiterFeeIncrementBps","type":"uint16"},{"name":"rateLimiterDuration","type":"uint40"},{"name":"rateLimiterReferenceAmount","type":"uint256"},{"name":"dynamicFeeEnabled","type":"bool"},{"name":"maxVolatilityAccumulator","type":"uint32"},{"name":"variableFeeControl","type":"uint32"},{"name":"dynamicFeeBinStepBps","type":"uint16"},{"name":"dynamicFeeFilterPeriod","type":"uint16"},{"name":"dynamicFeeDecayPeriod","type":"uint16"},{"name":"dynamicFeeReductionFactorBps","type":"uint16"},{"name":"dynamicFeeBinStepQ64","type":"uint128"},{"name":"collectFeeMode","type":"uint8"},{"name":"enableFirstSwapWithMinFee","type":"bool"},{"name":"migrationQuoteThreshold","type":"uint256"},{"name":"migrationBaseThreshold","type":"uint256"},{"name":"leftoverReceiver","type":"address"},{"name":"migrationQuoteFeeBps","type":"uint16"},{"name":"creatorMigrationFeeShareBps","type":"uint16"},{"name":"postMigrationFeeBps","type":"uint16"},{"name":"postMigrationCompoundingFeeBps","type":"uint16"},{"name":"postMigrationCollectFeeMode","type":"uint8"},{"name":"migrationMode","type":"uint8"},{"name":"postMigrationSqrtMinPrice","type":"uint128"},{"name":"postMigrationSqrtMaxPrice","type":"uint128"},{"name":"postMigrationLiquidity","type":"uint256"},{"name":"liquidityDistribution","type":"tuple","components":[{"name":"partner","type":"address"},{"name":"partnerUnlockedBps","type":"uint16"},{"name":"partnerPermanentLockedBps","type":"uint16"},{"name":"creatorPermanentLockedBps","type":"uint16"},{"name":"partnerVesting","type":"tuple","components":[{"name":"allocationBps","type":"uint16"},{"name":"bpsPerPeriod","type":"uint16"},{"name":"numberOfPeriods","type":"uint16"},{"name":"periodFrequency","type":"uint32"},{"name":"cliffDuration","type":"uint32"}]},{"name":"creatorVesting","type":"tuple","components":[{"name":"allocationBps","type":"uint16"},{"name":"bpsPerPeriod","type":"uint16"},{"name":"numberOfPeriods","type":"uint16"},{"name":"periodFrequency","type":"uint32"},{"name":"cliffDuration","type":"uint32"}]}]},{"name":"lockedBaseVesting","type":"tuple","components":[{"name":"cliffUnlockAmount","type":"uint128"},{"name":"amountPerPeriod","type":"uint128"},{"name":"numberOfPeriods","type":"uint32"},{"name":"frequency","type":"uint64"},{"name":"cliffDuration","type":"uint64"}]},{"name":"postMigrationFeeNumberOfPeriods","type":"uint16"},{"name":"postMigrationFeePeriodFrequency","type":"uint32"},{"name":"postMigrationFeeReductionFactorBps","type":"uint16"},{"name":"postMigrationFeeSchedulerMode","type":"uint8"},{"name":"activationDelay","type":"uint40"},{"name":"activationType","type":"uint8"}]}],"_sel":"0x9507d39a"},{"type":"function","name":"getCurve","stateMutability":"view","inputs":[{"name":"configId","type":"uint256"}],"outputs":[{"name":"curve","type":"tuple[]","components":[{"name":"lowerSqrtPrice","type":"uint128"},{"name":"upperSqrtPrice","type":"uint128"},{"name":"liquidity","type":"uint256"}]}],"_sel":"0x5c9b035d"},{"type":"function","name":"getIdentity","stateMutability":"view","inputs":[{"name":"configId","type":"uint256"}],"outputs":[{"name":"identity","type":"tuple","components":[{"name":"owner","type":"address"},{"name":"feeClaimer","type":"address"},{"name":"createdAtBlock","type":"uint64"}]}],"_sel":"0x85e3f058"},{"type":"function","name":"configHash","stateMutability":"view","inputs":[{"name":"configId","type":"uint256"}],"outputs":[{"type":"bytes32"}],"_sel":"0x4f1def99"},{"type":"function","name":"enabled","stateMutability":"view","inputs":[{"name":"configId","type":"uint256"}],"outputs":[{"type":"bool"}],"_sel":"0x76e5c0de"},{"type":"function","name":"nextConfigId","stateMutability":"view","inputs":[],"outputs":[{"type":"uint256"}],"_sel":"0x99d726c7"}],"factory":[{"type":"function","name":"createLaunch","stateMutability":"payable","inputs":[{"name":"name","type":"string"},{"name":"symbol","type":"string"},{"name":"metadataURI","type":"string"},{"name":"configId","type":"uint256"}],"outputs":[{"name":"token","type":"address"},{"name":"curve","type":"address"}],"_sel":"0xc0c10d20"},{"type":"function","name":"createLaunchWithTokenConfig","stateMutability":"payable","inputs":[{"name":"name","type":"string"},{"name":"symbol","type":"string"},{"name":"metadataURI","type":"string"},{"name":"creatorMetadataURI","type":"string"},{"name":"configId","type":"uint256"},{"name":"tokenDecimals","type":"uint8"}],"outputs":[{"name":"token","type":"address"},{"name":"curve","type":"address"}],"_sel":"0x697511bc"},{"type":"function","name":"predictLaunch","stateMutability":"view","inputs":[{"name":"creator","type":"address"},{"name":"configId","type":"uint256"},{"name":"metadataURI","type":"string"}],"outputs":[{"name":"token","type":"address"},{"name":"curve","type":"address"}],"_sel":"0x33ccc840"},{"type":"function","name":"configRegistry","stateMutability":"view","inputs":[],"outputs":[{"type":"address"}],"_sel":"0x244bb309"},{"type":"function","name":"feeVault","stateMutability":"view","inputs":[],"outputs":[{"type":"address"}],"_sel":"0x478222c2"},{"type":"function","name":"tokenForCurve","stateMutability":"view","inputs":[{"name":"curve","type":"address"}],"outputs":[{"type":"address"}],"_sel":"0x4c1c1c6e"},{"type":"function","name":"curveForToken","stateMutability":"view","inputs":[{"name":"token","type":"address"}],"outputs":[{"type":"address"}],"_sel":"0x8580756c"}],"curve":[{"type":"function","name":"quoteExactInput","stateMutability":"view","inputs":[{"name":"includedAmountIn","type":"uint256"},{"name":"baseForQuote","type":"bool"}],"outputs":[{"name":"result","type":"tuple","components":[{"name":"amountIn","type":"uint256"},{"name":"amountOut","type":"uint256"},{"name":"amountLeft","type":"uint256"},{"name":"nextSqrtPrice","type":"uint128"}]},{"name":"fee","type":"uint256"}],"_sel":"0xbf211f34"},{"type":"function","name":"swapExactInput","stateMutability":"nonpayable","inputs":[{"name":"includedAmountIn","type":"uint256"},{"name":"minimumAmountOut","type":"uint256"},{"name":"baseForQuote","type":"bool"},{"name":"allowPartialFill","type":"bool"},{"name":"recipient","type":"address"},{"name":"deadline","type":"uint256"}],"outputs":[{"name":"result","type":"tuple","components":[{"name":"amountIn","type":"uint256"},{"name":"amountOut","type":"uint256"},{"name":"amountLeft","type":"uint256"},{"name":"nextSqrtPrice","type":"uint128"}]}],"_sel":"0xe955c786"},{"type":"function","name":"migrate","stateMutability":"nonpayable","inputs":[],"outputs":[{"name":"pool","type":"address"}],"_sel":"0x8fd3ab80"},{"type":"function","name":"claimSurplus","stateMutability":"nonpayable","inputs":[],"outputs":[{"name":"totalSurplus","type":"uint256"}],"_sel":"0x27ff02e3"},{"type":"function","name":"configId","stateMutability":"view","inputs":[],"outputs":[{"type":"uint256"}],"_sel":"0xb564eb27"},{"type":"function","name":"baseToken","stateMutability":"view","inputs":[],"outputs":[{"type":"address"}],"_sel":"0xc55dae63"},{"type":"function","name":"quoteToken","stateMutability":"view","inputs":[],"outputs":[{"type":"address"}],"_sel":"0x217a4b70"},{"type":"function","name":"creator","stateMutability":"view","inputs":[],"outputs":[{"type":"address"}],"_sel":"0x02d05d3f"},{"type":"function","name":"sqrtPrice","stateMutability":"view","inputs":[],"outputs":[{"type":"uint128"}],"_sel":"0xb83d2683"},{"type":"function","name":"baseReserve","stateMutability":"view","inputs":[],"outputs":[{"type":"uint256"}],"_sel":"0xdfdf2a72"},{"type":"function","name":"quoteReserve","stateMutability":"view","inputs":[],"outputs":[{"type":"uint256"}],"_sel":"0x9da771f4"},{"type":"function","name":"migrationQuoteThreshold","stateMutability":"view","inputs":[],"outputs":[{"type":"uint256"}],"_sel":"0x99d57f8b"},{"type":"function","name":"migrationBaseThreshold","stateMutability":"view","inputs":[],"outputs":[{"type":"uint256"}],"_sel":"0xf77cbb56"},{"type":"function","name":"canonicalPool","stateMutability":"view","inputs":[],"outputs":[{"type":"address"}],"_sel":"0x3cee0be3"},{"type":"function","name":"status","stateMutability":"view","inputs":[],"outputs":[{"type":"uint8"}],"_sel":"0x200d2ed2"},{"type":"function","name":"currentFeeBps","stateMutability":"view","inputs":[],"outputs":[{"type":"uint16"}],"_sel":"0x975f8f46"}],"feeVault":[{"type":"function","name":"claimable","stateMutability":"view","inputs":[{"name":"token","type":"address"},{"name":"beneficiary","type":"address"}],"outputs":[{"name":"amount","type":"uint256"}],"_sel":"0xd4570c1c"},{"type":"function","name":"claim","stateMutability":"nonpayable","inputs":[{"name":"token","type":"address"},{"name":"recipient","type":"address"}],"outputs":[{"name":"amount","type":"uint256"}],"_sel":"0x21c0b342"},{"type":"function","name":"claim","stateMutability":"nonpayable","inputs":[{"name":"token","type":"address"},{"name":"recipient","type":"address"}],"outputs":[{"name":"amount","type":"uint256"}],"_sel":"0x21c0b342"}],"events":{"LaunchCreated":{"type":"event","name":"LaunchCreated","inputs":[{"indexed":true,"name":"token","type":"address"},{"indexed":true,"name":"curve","type":"address"},{"indexed":true,"name":"creator","type":"address"},{"indexed":false,"name":"configId","type":"uint256"},{"indexed":false,"name":"configHash","type":"bytes32"},{"indexed":false,"name":"protocolVersion","type":"uint16"},{"indexed":false,"name":"metadataURI","type":"string"}],"_topic":"0x0d8c51804d67b6aa256e855176d3b6f5d0cc3657138b63947cc9eb5a1908d00a"},"ConfigCreatedV4":{"type":"event","name":"ConfigCreatedV4","inputs":[{"indexed":true,"name":"configId","type":"uint256"},{"indexed":true,"name":"configHash","type":"bytes32"},{"indexed":true,"name":"owner","type":"address"},{"indexed":false,"name":"feeClaimer","type":"address"},{"indexed":false,"name":"quoteToken","type":"address"},{"indexed":false,"name":"createdAtBlock","type":"uint64"},{"indexed":false,"name":"feePolicyVersion","type":"bytes32"}],"_topic":"0x7a77d182539e5b6dc2b7747f515bb27ebfba5622eda1fafc68e9e06aa092133d"},"Swap":{"type":"event","name":"Swap","inputs":[{"indexed":true,"name":"trader","type":"address"},{"indexed":true,"name":"baseForQuote","type":"bool"},{"indexed":false,"name":"exactInput","type":"bool"},{"indexed":false,"name":"amountIn","type":"uint256"},{"indexed":false,"name":"amountOut","type":"uint256"},{"indexed":false,"name":"fee","type":"uint256"},{"indexed":false,"name":"amountLeft","type":"uint256"},{"indexed":false,"name":"nextSqrtPrice","type":"uint128"},{"indexed":false,"name":"recipient","type":"address"}],"_topic":"0x5d0b37a82cfe505a2d677b983184515b99431597e5d3a1f3e3512117094b44a3"}}};
+var ERC20_ABI = [
+  {type:"function",name:"name",stateMutability:"view",inputs:[],outputs:[{name:"",type:"string"}],_sel:"0x06fdde03"},
+  {type:"function",name:"symbol",stateMutability:"view",inputs:[],outputs:[{name:"",type:"string"}],_sel:"0x95d89b41"},
+  {type:"function",name:"decimals",stateMutability:"view",inputs:[],outputs:[{name:"",type:"uint8"}],_sel:"0x313ce567"},
+  {type:"function",name:"balanceOf",stateMutability:"view",inputs:[{name:"a",type:"address"}],outputs:[{name:"",type:"uint256"}],_sel:"0x70a08231"},
+  {type:"function",name:"allowance",stateMutability:"view",inputs:[{name:"o",type:"address"},{name:"s",type:"address"}],outputs:[{name:"",type:"uint256"}],_sel:"0xdd62ed3e"},
+  {type:"function",name:"approve",stateMutability:"nonpayable",inputs:[{name:"s",type:"address"},{name:"v",type:"uint256"}],outputs:[{name:"",type:"bool"}],_sel:"0x095ea7b3"}
+];
+var WETH_ABI = [
+  {type:"function",name:"deposit",stateMutability:"payable",inputs:[],outputs:[],_sel:"0xd0e30db0"},
+  {type:"function",name:"withdraw",stateMutability:"nonpayable",inputs:[{name:"v",type:"uint256"}],outputs:[],_sel:"0x2e1a7d4d"}
+];
+function fnOf(abi, name){ for (var i=0;i<abi.length;i++) if (abi[i].name===name && abi[i].type==="function") return abi[i]; return null; }
+
+/* ================= ABI codec (generic, BigInt) ================= */
+function isDynamicType(t){
+  if (t.type==="string"||t.type==="bytes") return true;
+  if (t.type.endsWith("[]")) return true;
+  if (t.type==="tuple") return t.components.some(isDynamicType);
+  return false;
+}
+function typeSize(t){
+  if (t.type==="tuple") return t.components.reduce(function(s,c){return s+typeSize(c);},0);
+  return 32;
+}
+function wordHex(v){ var b=BigInt(v); if (b<0n) b=(1n<<256n)+b; return b.toString(16).padStart(64,"0"); }
+function encodeValue(t, v){
+  var ty=t.type;
+  if (ty==="address") return wordHex(BigInt(v));
+  if (ty==="bool") return wordHex(v?1n:0n);
+  if (/^u?int\d*$/.test(ty)) return wordHex(BigInt(v));
+  if (/^bytes\d+$/.test(ty)){ var h0=v.replace(/^0x/,""); return h0.padEnd(64,"0").slice(0,64); }
+  if (ty==="bytes"||ty==="string"){
+    var h;
+    if (ty==="string"){ var bytes=new TextEncoder().encode(v); h=Array.prototype.map.call(bytes,function(b){return b.toString(16).padStart(2,"0");}).join(""); }
+    else h=v.replace(/^0x/,"");
+    var len=h.length/2;
+    return wordHex(BigInt(len)) + h.padEnd(Math.ceil(len/32)*64,"0");
+  }
+  if (ty.endsWith("[]")){
+    var elem={type:ty.slice(0,-2), components:t.components};
+    var head="", tail="";
+    v.forEach(function(item){
+      if (isDynamicType(elem)){ head+=wordHex(BigInt(v.length*32 + tail.length/2)); tail+=encodeValue(elem,item); }
+      else head+=encodeValue(elem,item);
+    });
+    return wordHex(BigInt(v.length)) + head + tail;
+  }
+  if (ty==="tuple"){
+    var hd="", tl="";
+    t.components.forEach(function(c){
+      var val = v[c.name];
+      if (isDynamicType(c)){ hd+=wordHex(BigInt(typeSize(t) + tl.length/2)); tl+=encodeValue(c,val); }
+      else hd+=encodeValue(c,val);
+    });
+    return hd+tl;
+  }
+  throw new Error("unsupported type "+ty);
+}
+function encodeCall(fnAbi, args){
+  var head="", tail="";
+  var headSize=fnAbi.inputs.reduce(function(s,i){return s+(isDynamicType(i)?32:typeSize(i));},0);
+  fnAbi.inputs.forEach(function(inp,i){
+    if (isDynamicType(inp)){ head+=wordHex(BigInt(headSize + tail.length/2)); tail+=encodeValue(inp,args[i]); }
+    else head+=encodeValue(inp,args[i]);
+  });
+  return fnAbi._sel + (head+tail).replace(/^0x/,"");
+}
+function readWord(hex, byteOff){ return BigInt("0x"+hex.slice(byteOff*2, byteOff*2+64)); }
+function decodeValue(t, hex, byteOff){
+  var ty=t.type;
+  if (ty==="address") return ["0x"+hex.slice(byteOff*2+24, byteOff*2+64), 32];
+  if (ty==="bool") return [readWord(hex,byteOff)!==0n, 32];
+  if (/^uint\d*$/.test(ty)) return [readWord(hex,byteOff), 32];
+  if (/^int\d*$/.test(ty)){ var w=readWord(hex,byteOff); return [w>=(1n<<255n)? w-(1n<<256n):w, 32]; }
+  if (/^bytes\d+$/.test(ty)) return ["0x"+hex.slice(byteOff*2, byteOff*2+parseInt(ty.slice(5),10)*2), 32];
+  if (ty==="bytes"||ty==="string"){
+    var len=Number(readWord(hex,byteOff));
+    var data=hex.slice((byteOff+32)*2,(byteOff+32)*2+len*2);
+    if (ty==="bytes") return ["0x"+data, 32+Math.ceil(len/32)*32];
+    var bs=[]; for(var i=0;i<data.length;i+=2) bs.push(parseInt(data.slice(i,i+2),16));
+    return [new TextDecoder().decode(new Uint8Array(bs)), 32+Math.ceil(len/32)*32];
+  }
+  if (ty.endsWith("[]")){
+    var elem={type:ty.slice(0,-2), components:t.components};
+    var n=Number(readWord(hex,byteOff));
+    var arr=[]; var off=byteOff+32;
+    if (isDynamicType(elem)){
+      for(var j=0;j<n;j++){ var rel=Number(readWord(hex,off+j*32)); arr.push(decodeValue(elem,hex,off+rel)[0]); }
+    } else {
+      for(var k=0;k<n;k++){ var dv=decodeValue(elem,hex,off); arr.push(dv[0]); off+=dv[1]; }
+    }
+    return [arr, 32];
+  }
+  if (ty==="tuple"){
+    var obj={}; var o=byteOff;
+    t.components.forEach(function(c){
+      if (isDynamicType(c)){
+        var rel2=Number(readWord(hex,o));
+        obj[c.name]=decodeValue(c,hex,byteOff+rel2)[0]; o+=32;
+      } else {
+        var dv2=decodeValue(c,hex,o);
+        obj[c.name]=dv2[0]; o+=dv2[1];
+      }
+    });
+    return [obj, o-byteOff];
+  }
+  throw new Error("unsupported decode "+ty);
+}
+function decodeOutputs(fnAbi, data){
+  var hex=data.replace(/^0x/,"");
+  var outs=fnAbi.outputs||[];
+  if (outs.length===1){
+    var t=outs[0];
+    if (isDynamicType(t)){ var rel=Number(readWord(hex,0)); return decodeValue(t,hex,rel)[0]; }
+    return decodeValue(t,hex,0)[0];
+  }
+  var res={}; var off=0;
+  outs.forEach(function(t,idx){
+    var key=(t.name&&t.name.length)?t.name:("out"+idx);
+    if (isDynamicType(t)){ var r=Number(readWord(hex,off)); res[key]=decodeValue(t,hex,r)[0]; off+=32; }
+    else { var dv=decodeValue(t,hex,off); res[key]=dv[0]; off+=dv[1]; }
+  });
+  return res;
+}
+
+/* ============ Ammora curve math (@ammora-protocol/math 0.3.0 port) ============ */
+var Q128=(1n<<128n);
+function buildSingleSegmentCurve(initialSqrtPrice, saleSupply, migrationQuoteThreshold){
+  if (initialSqrtPrice<=0n||saleSupply<=0n||migrationQuoteThreshold<=0n) throw new Error("Sale supply and graduation threshold must be positive.");
+  var upperSqrtPrice = Q128 * migrationQuoteThreshold / (saleSupply * initialSqrtPrice);
+  if (upperSqrtPrice <= initialSqrtPrice) throw new Error("The template's starting price is too high for this supply/threshold pair — raise the threshold or lower the sale supply.");
+  var liquidity = Q128 * migrationQuoteThreshold / (upperSqrtPrice - initialSqrtPrice);
+  if (liquidity<=0n) throw new Error("Curve inputs produced no valid liquidity.");
+  return [{lowerSqrtPrice:initialSqrtPrice, upperSqrtPrice:upperSqrtPrice, liquidity:liquidity}];
+}
+function concentratedDepositQuote(range, quoteAmount){
+  var p=range.sqrtPriceX64, lo=range.sqrtMinPriceX64, hi=range.sqrtMaxPriceX64;
+  if (!(lo>0n&&hi>lo&&p>=lo&&p<=hi)) throw new Error("Invalid graduation price range.");
+  if (p===lo) throw new Error("Price at range minimum: a quote deposit funds no liquidity.");
+  var liquidity = quoteAmount * Q128 / (p - lo);
+  var baseAmount = (liquidity*(hi-p) + p*hi - 1n) / (p*hi);
+  var quoteUsed = (liquidity*(p-lo) + Q128 - 1n) / Q128;
+  return {liquidity:liquidity, baseAmount:baseAmount, quoteAmount:quoteUsed};
+}
+function deriveConfigFromTemplate(templateConfig, saleSupply, migrationQuoteThreshold, recipients){
+  if (Number(templateConfig.migrationMode)!==0) throw new Error("This template does not use concentrated graduation (migrationMode 0) — pick another template.");
+  var curve=buildSingleSegmentCurve(BigInt(templateConfig.startSqrtPrice), saleSupply, migrationQuoteThreshold);
+  var seg=curve[0];
+  var range={sqrtPriceX64:seg.upperSqrtPrice, sqrtMinPriceX64:seg.lowerSqrtPrice, sqrtMaxPriceX64:seg.upperSqrtPrice*2n};
+  var quoteFee=migrationQuoteThreshold*BigInt(templateConfig.migrationQuoteFeeBps)/10000n;
+  var dest=concentratedDepositQuote(range, migrationQuoteThreshold-quoteFee);
+  var vesting=templateConfig.lockedBaseVesting;
+  var lockedBase=BigInt(vesting.cliffUnlockAmount)+BigInt(vesting.amountPerPeriod)*BigInt(vesting.numberOfPeriods);
+  var config=Object.assign({}, templateConfig, {
+    partnerRecipient: recipients.partnerRecipient,
+    leftoverReceiver: recipients.leftoverReceiver,
+    liquidityDistribution: Object.assign({}, templateConfig.liquidityDistribution, {partner: recipients.liquidityPartner}),
+    totalSupply: saleSupply + dest.baseAmount + lockedBase,
+    migrationQuoteThreshold: migrationQuoteThreshold,
+    migrationBaseThreshold: dest.baseAmount,
+    postMigrationSqrtMinPrice: range.sqrtMinPriceX64,
+    postMigrationSqrtMaxPrice: range.sqrtMaxPriceX64,
+    postMigrationLiquidity: dest.liquidity
+  });
+  return {config:config, curve:curve, economics:{saleAllocationRaw:saleSupply, grossMigrationBaseRaw:dest.baseAmount, grossMigrationQuoteRaw:dest.quoteAmount, migrationQuoteFeeRaw:quoteFee, lockedBaseRaw:lockedBase, totalSupplyRaw:config.totalSupply}};
+}
+</script>
+<script>
+"use strict";
+/* ================= app state & helpers ================= */
+var state = {
+  account: null, feeVault: FEEVAULT_FALLBACK,
+  tpl: null,            // {id, config, enabled, identity}
+  launchCfg: null,      // {id, config, enabled}
+  trade: null,          // {curve, token, configId, name, symbol, decimals, quoteDecimals, status,...}
+  side: "buy", quote: null, quoteAmountRaw: 0n,
+  busy: false
+};
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function isAddr(a){ return typeof a==="string" && /^0x[0-9a-fA-F]{40}$/.test(a) && BigInt(a)!==0n; }
+function shortAddr(a){ return a ? a.slice(0,6)+"…"+a.slice(-4) : "—"; }
+function addrLink(a){ return '<a href="'+EXPLORER+"/address/"+a+'" target="_blank" rel="noopener" class="mono">'+shortAddr(a)+"</a>"; }
+function txLink(h){ return '<a href="'+EXPLORER+"/tx/"+h+'" target="_blank" rel="noopener" class="mono">'+h.slice(0,10)+"…</a>"; }
+function setMsg(el, kind, text){ el.className="msg show "+kind; el.innerHTML=text; }
+function clearMsg(el){ el.className="msg"; el.innerHTML=""; }
+function log(text, txHash){
+  var list=$("logList");
+  var empty=list.querySelector(".log-empty"); if (empty) empty.remove();
+  var item=document.createElement("div"); item.className="log-item";
+  var time=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  item.innerHTML="<time>"+time+"</time><span class=\"txt\">"+text+(txHash? " · "+txLink(txHash):"")+"</span>";
+  list.prepend(item);
+}
+function fmtUnits(raw, decimals, maxFrac){
+  raw=BigInt(raw); decimals=Number(decimals); maxFrac=(maxFrac==null?6:maxFrac);
+  var neg=raw<0n; if (neg) raw=-raw;
+  var base=10n**BigInt(decimals);
+  var whole=raw/base, frac=raw%base;
+  var fracStr=frac.toString().padStart(decimals,"0").slice(0,Math.max(maxFrac,0));
+  fracStr=fracStr.replace(/0+$/,"");
+  var out=(neg?"-":"")+whole.toLocaleString("en-US")+(fracStr? "."+fracStr:"");
+  return out;
+}
+function parseUnits(str, decimals){
+  str=String(str).trim();
+  if (!/^\d+(\.\d+)?$/.test(str)) throw new Error("Enter a valid amount.");
+  var parts=str.split("."); var whole=parts[0]; var frac=parts[1]||"";
+  if (frac.length>Number(decimals)) throw new Error("Too many decimal places (max "+decimals+").");
+  frac=frac.padEnd(Number(decimals),"0");
+  return BigInt(whole)*10n**BigInt(decimals) + (frac? BigInt(frac):0n);
+}
+function fmtPrice(sqrtPrice, baseDec, quoteDec){
+  var sp=Number(sqrtPrice)/Math.pow(2,64);
+  var price=sp*sp*Math.pow(10, Number(baseDec)-Number(quoteDec));
+  if (price===0) return "0";
+  if (price<0.000001) return price.toExponential(3);
+  if (price<0.01) return price.toFixed(8).replace(/0+$/,"").replace(/\.$/,"");
+  return price.toFixed(6).replace(/0+$/,"").replace(/\.$/,"");
+}
+function debounce(fn, ms){ var t=null; return function(){ var a=arguments, s=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(s,a); }, ms); }; }
+
+/* ================= RPC layer ================= */
+var rpcId=0;
+function rpcFetch(method, params){
+  return fetch(RPC_URL, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({jsonrpc:"2.0", id:++rpcId, method:method, params:params})})
+    .then(function(r){ if (!r.ok) throw new Error("RPC HTTP "+r.status); return r.json(); })
+    .then(function(j){ if (j.error) throw new Error(j.error.message||"RPC error"); return j.result; });
+}
+function readCall(to, data){
+  return rpcFetch("eth_call", [{to:to, data:data}, "latest"]).catch(function(e){
+    if (window.ethereum) return window.ethereum.request({method:"eth_call", params:[{to:to, data:data}, "latest"]});
+    throw e;
+  });
+}
+function callFn(abi, to, name, args){
+  var f=fnOf(abi, name);
+  return readCall(to, encodeCall(f, args||[])).then(function(res){ return decodeOutputs(f, res); });
+}
+function erc20(addr, name, args){ return callFn(ERC20_ABI, addr, name, args); }
+function getBalance(addr){ return rpcFetch("eth_getBalance", [addr, "latest"]).then(function(h){ return BigInt(h); }); }
+
+/* ================= wallet layer ================= */
+function ensureWallet(){
+  if (!window.ethereum) throw new Error("No EVM wallet detected. Open this page in a wallet browser (e.g. Rabby) or a browser with a wallet extension, then connect.");
+  return window.ethereum;
+}
+function switchChain(){
+  var eth=ensureWallet();
+  return eth.request({method:"wallet_switchEthereumChain", params:[{chainId:CHAIN_HEX}]}).catch(function(e){
+    if (e && e.code===4902){
+      return eth.request({method:"wallet_addEthereumChain", params:[{chainId:CHAIN_HEX, chainName:"GIWA Sepolia", nativeCurrency:{name:"Ether", symbol:"ETH", decimals:18}, rpcUrls:[RPC_URL], blockExplorerUrls:[EXPLORER]}]});
+    }
+    throw e;
+  });
+}
+function connectWallet(){
+  var eth;
+  try { eth=ensureWallet(); } catch(e){ log(esc(e.message)); $("connectBtn").textContent="No wallet detected"; return Promise.resolve(); }
+  return eth.request({method:"eth_requestAccounts"}).then(function(accs){
+    if (!accs || !accs.length) throw new Error("Wallet returned no account.");
+    state.account=accs[0];
+    return eth.request({method:"eth_chainId"});
+  }).then(function(cid){
+    if (parseInt(cid,16)!==CHAIN_ID) return switchChain();
+  }).then(function(){
+    onAccountReady();
+    log("Wallet connected: "+addrLink(state.account));
+  }).catch(function(e){ log("Connect failed: "+esc(e.message||String(e))); });
+}
+function onAccountReady(){
+  var a=state.account;
+  $("connectBtn").textContent="Connected";
+  $("walletChip").classList.add("on");
+  $("walletAddr").textContent=shortAddr(a);
+  ["rcOwner","rcPartner","rcLp","rcLeftover"].forEach(function(id){ var el=$(id); if (!el.value) el.value=a; });
+  if (!$("rcOwner").value) $("rcOwner").value=a;
+  getBalance(a).then(function(b){ $("walletBal").textContent=fmtUnits(b,18,4)+" ETH"; }).catch(function(){});
+  refreshFees();
+  updateCreateButtons();
+  if (state.trade) refreshTrade();
+}
+function sendTx(to, data, value){
+  var eth=ensureWallet();
+  if (!state.account) return Promise.reject(new Error("Connect your wallet first."));
+  var tx={from:state.account, to:to, data:data, value: value? "0x"+BigInt(value).toString(16):"0x0"};
+  return eth.request({method:"eth_sendTransaction", params:[tx]});
+}
+function waitReceipt(hash){
+  var tries=0;
+  return new Promise(function(resolve, reject){
+    (function poll(){
+      rpcFetch("eth_getTransactionReceipt", [hash]).then(function(r){
+        if (r) {
+          if (r.status==="0x1") resolve(r);
+          else reject(new Error("Transaction reverted on-chain."));
+        } else if (++tries>90) reject(new Error("Timed out waiting for the receipt — check the explorer."));
+        else setTimeout(poll, 2000);
+      }).catch(function(){ if (++tries>90) reject(new Error("Receipt lookup failed.")); else setTimeout(poll, 2000); });
+    })();
+  });
+}
+function findEvent(receipt, emitter, topic0){
+  for (var i=0;i<receipt.logs.length;i++){
+    var l=receipt.logs[i];
+    if (l.address.toLowerCase()===emitter.toLowerCase() && l.topics && l.topics[0]===topic0) return l;
+  }
+  return null;
+}
+function busy(btn, on, label){
+  if (!btn) return;
+  if (on){ btn.dataset.label=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span class="spinner"></span> '+(label||"Working…"); }
+  else { btn.disabled=false; if (btn.dataset.label) btn.innerHTML=btn.dataset.label; }
+}
+</script>
+<script>
+"use strict";
+/* ================= STEP 1 · CONFIG ================= */
+var REG_ABI = SDK_ABI.registry, FAC_ABI = SDK_ABI.factory, CURVE_ABI = SDK_ABI.curve, VAULT_ABI = SDK_ABI.feeVault;
+function kvRender(el, rows){
+  el.innerHTML = rows.map(function(r){ return "<div><dt>"+esc(r[0])+"</dt><dd"+(r[2]?' class="small"':"")+">"+r[1]+"</dd></div>"; }).join("");
+  el.style.display="grid";
+}
+function loadTemplate(){
+  var idStr=$("tplId").value.trim();
+  if (!/^\d+$/.test(idStr)) { setMsg($("configMsg"),"err","Template ID must be a whole number."); return Promise.resolve(); }
+  var id=BigInt(idStr);
+  $("tplStatus").textContent="Loading template #"+idStr+" from the registry…";
+  var getF=fnOf(REG_ABI,"get");
+  return Promise.all([
+    callFn(REG_ABI, REGISTRY, "get", [id]),
+    callFn(REG_ABI, REGISTRY, "enabled", [id]),
+    callFn(REG_ABI, REGISTRY, "getIdentity", [id]).catch(function(){ return null; })
+  ]).then(function(res){
+    var cfg=res[0], enabled=res[1], identity=res[2];
+    state.tpl={id:id, config:cfg, enabled:enabled, identity:identity};
+    $("tplStatus").textContent="Template #"+idStr+" loaded"+(enabled?"":" — but it is DISABLED on the registry.");
+    kvRender($("tplKv"), [
+      ["Quote token", addrLink(cfg.quoteToken)+" WETH"],
+      ["Token decimals", String(Number(cfg.tokenDecimals))],
+      ["Start price (WETH/token)", fmtPrice(cfg.startSqrtPrice, cfg.tokenDecimals, 18)],
+      ["Cliff fee", (Number(cfg.cliffFeeBps)/100).toFixed(2)+"%"],
+      ["Creator share of fees", (Number(cfg.creatorShareOfNonProtocolBps)/100).toFixed(1)+"%"],
+      ["Migration quote fee", (Number(cfg.migrationQuoteFeeBps)/100).toFixed(2)+"%"],
+      ["LP split at graduation", "Partner "+(Number(cfg.liquidityDistribution.partnerPermanentLockedBps)/100)+"% locked · Creator "+(Number(cfg.liquidityDistribution.creatorPermanentLockedBps)/100)+"% locked"],
+      ["Template enabled", enabled? "Yes":"No — choose another template"],
+      ["Template owner", identity? addrLink(identity.owner):"—"]
+    ]);
+    if (!enabled) setMsg($("configMsg"),"err","Template #"+idStr+" is disabled, so the SDK flow cannot clone it. Try template 4 or 10.");
+    else clearMsg($("configMsg"));
+    log("Template Config #"+idStr+" loaded from the registry ("+(enabled?"enabled":"disabled")+").");
+    previewDerive();
+  }).catch(function(e){
+    state.tpl=null;
+    $("tplStatus").textContent="Could not load template #"+idStr+".";
+    setMsg($("configMsg"),"err","Registry read failed: "+esc(e.message||String(e)));
+  });
+}
+function readRecipients(){
+  return { owner:$("rcOwner").value.trim(), partnerRecipient:$("rcPartner").value.trim(), liquidityPartner:$("rcLp").value.trim(), leftoverReceiver:$("rcLeftover").value.trim() };
+}
+function previewDerive(){
+  var btn=$("createConfigBtn");
+  if (!state.tpl){ btn.disabled=true; return null; }
+  try {
+    var dec=Number(state.tpl.config.tokenDecimals);
+    var saleSupply=parseUnits($("saleSupply").value, dec);
+    var threshold=parseUnits($("threshold").value, 18);
+    var r=readRecipients();
+    var derived=deriveConfigFromTemplate(state.tpl.config, saleSupply, threshold, {partnerRecipient: isAddr(r.partnerRecipient)? r.partnerRecipient : state.tpl.config.partnerRecipient, leftoverReceiver: isAddr(r.leftoverReceiver)? r.leftoverReceiver : state.tpl.config.leftoverReceiver, liquidityPartner: isAddr(r.liquidityPartner)? r.liquidityPartner : state.tpl.config.liquidityDistribution.partner});
+    kvRender($("deriveKv"), [
+      ["Sale allocation", fmtUnits(derived.economics.saleAllocationRaw, dec, 2)+" tokens"],
+      ["Migration base (to LP)", fmtUnits(derived.economics.grossMigrationBaseRaw, dec, 2)+" tokens"],
+      ["Locked base (vesting)", fmtUnits(derived.economics.lockedBaseRaw, dec, 2)+" tokens"],
+      ["Total supply", fmtUnits(derived.economics.totalSupplyRaw, dec, 2)+" tokens"],
+      ["Migration quote fee", fmtUnits(derived.economics.migrationQuoteFeeRaw, 18, 6)+" WETH"],
+      ["Graduation end price", fmtPrice(derived.curve[0].upperSqrtPrice, dec, 18)+" WETH"]
+    ]);
+    clearMsg($("configMsg"));
+    state.derived=derived;
+    updateCreateButtons();
+    return derived;
+  } catch(e){
+    $("deriveKv").style.display="none";
+    if (state.tpl.enabled) setMsg($("configMsg"),"err",esc(e.message||String(e)));
+    state.derived=null; btn.disabled=true;
+    return null;
+  }
+}
+function updateCreateButtons(){
+  var okCfg = !!(state.tpl && state.tpl.enabled && state.derived && state.account);
+  $("createConfigBtn").disabled=!okCfg;
+  var okLaunch = !!(state.launchCfg && state.launchCfg.enabled && state.account && $("tokName").value.trim() && $("tokSymbol").value.trim() && $("tokMeta").value.trim());
+  $("createLaunchBtn").disabled=!okLaunch;
+}
+function createConfig(){
+  var btn=$("createConfigBtn");
+  var r=readRecipients();
+  if (!state.account) { setMsg($("configMsg"),"err","Connect your wallet first."); return; }
+  if (!isAddr(r.owner)) { setMsg($("configMsg"),"err","Config owner must be a valid address."); return; }
+  if (r.owner.toLowerCase()!==state.account.toLowerCase()) { setMsg($("configMsg"),"err","Config owner must equal the connected wallet — the registry requires the caller to be the owner."); return; }
+  if (!isAddr(r.partnerRecipient)||!isAddr(r.liquidityPartner)||!isAddr(r.leftoverReceiver)) { setMsg($("configMsg"),"err","All recipient fields must be valid, non-zero addresses."); return; }
+  if (!previewDerive()) return;
+  var derived;
+  try {
+    derived=deriveConfigFromTemplate(state.tpl.config, parseUnits($("saleSupply").value, Number(state.tpl.config.tokenDecimals)), parseUnits($("threshold").value, 18), r);
+  } catch(e){ setMsg($("configMsg"),"err",esc(e.message||String(e))); return; }
+  var f=fnOf(REG_ABI,"createConfig");
+  var data=encodeCall(f,[derived.config, derived.curve, r.owner]);
+  busy(btn,true,"Simulating…");
+  rpcFetch("eth_call", [{from:state.account, to:REGISTRY, data:data, value:"0x0"}, "latest"]).then(function(){
+    busy(btn,true,"Sign in wallet…");
+    return sendTx(REGISTRY, data, 0n);
+  }).then(function(hash){
+    log("Create Config submitted — cloning template #"+state.tpl.id.toString()+" with your recipients.", hash);
+    busy(btn,true,"Confirming…");
+    return waitReceipt(hash).then(function(rcpt){ return {hash:hash, rcpt:rcpt}; });
+  }).then(function(out){
+    var ev=findEvent(out.rcpt, REGISTRY, SDK_ABI.events.ConfigCreatedV4._topic);
+    if (!ev) throw new Error("ConfigCreatedV4 event not found in the receipt.");
+    var configId=BigInt(ev.topics[1]);
+    var cfgHash=ev.topics[2];
+    $("configState").textContent="Config #"+configId.toString()+" created"; $("configState").className="pill ok";
+    $("cardConfig").classList.add("done");
+    $("configResult").className="result-box show";
+    $("configResult").innerHTML=
+      '<div class="row"><span class="k">Config ID</span><strong class="mono">'+configId.toString()+'</strong></div>'+
+      '<div class="row"><span class="k">Config hash</span><span class="mono" style="overflow-wrap:anywhere">'+cfgHash+'</span></div>'+
+      '<div class="row"><span class="k">Transaction</span>'+txLink(out.hash)+'</div>';
+    setMsg($("configMsg"),"okm","Config #"+configId.toString()+" is live on the registry. It is loaded into step 2 below — you can reuse it for every token you launch.");
+    log("Config #"+configId.toString()+" created (hash "+cfgHash.slice(0,14)+"…).", out.hash);
+    $("launchConfigId").value=configId.toString();
+    loadLaunchConfig();
+  }).catch(function(e){
+    setMsg($("configMsg"),"err","Create Config failed: "+esc(e.message||String(e)));
+  }).finally(function(){ busy(btn,false); updateCreateButtons(); });
+}
+
+/* ================= STEP 2 · LAUNCH ================= */
+function loadLaunchConfig(){
+  var idStr=$("launchConfigId").value.trim();
+  if (!/^\d+$/.test(idStr)) { setMsg($("launchMsg"),"err","Enter a Config ID first."); return Promise.resolve(); }
+  var id=BigInt(idStr);
+  $("launchConfigStatus").textContent="Loading Config #"+idStr+"…";
+  return Promise.all([
+    callFn(REG_ABI, REGISTRY, "get", [id]),
+    callFn(REG_ABI, REGISTRY, "enabled", [id])
+  ]).then(function(res){
+    var cfg=res[0], enabled=res[1];
+    state.launchCfg={id:id, config:cfg, enabled:enabled};
+    $("launchConfigStatus").textContent="Config #"+idStr+" loaded"+(enabled?"":" — DISABLED, launches will revert.");
+    kvRender($("launchKv"), [
+      ["Quote token", addrLink(cfg.quoteToken)+" WETH"],
+      ["Token decimals", String(Number(cfg.tokenDecimals))],
+      ["Total supply", fmtUnits(cfg.totalSupply, cfg.tokenDecimals, 2)+" tokens"],
+      ["Graduation threshold", fmtUnits(cfg.migrationQuoteThreshold, 18, 6)+" WETH"],
+      ["Pool creation fee", fmtUnits(cfg.poolCreationFee, 18, 6)+" ETH"],
+      ["Partner recipient", addrLink(cfg.partnerRecipient)],
+      ["Enabled", enabled?"Yes":"No"]
+    ]);
+    clearMsg($("launchMsg"));
+    updateCreateButtons();
+    updatePrediction();
+  }).catch(function(e){
+    state.launchCfg=null;
+    $("launchConfigStatus").textContent="Could not load Config #"+idStr+".";
+    setMsg($("launchMsg"),"err","Config read failed: "+esc(e.message||String(e)));
+    updateCreateButtons();
+  });
+}
+var updatePrediction=debounce(function(){
+  var box=$("predictBox");
+  if (!state.account || !state.launchCfg || !$("tokMeta").value.trim()){ box.style.display="none"; return; }
+  callFn(FAC_ABI, FACTORY, "predictLaunch", [state.account, state.launchCfg.id, $("tokMeta").value.trim()]).then(function(res){
+    box.style.display="block"; box.className="msg inf show";
+    box.innerHTML="Predicted token "+addrLink(res.out0)+" · curve "+addrLink(res.out1)+" (deterministic — confirm from the creation receipt, not this preview).";
+  }).catch(function(){ box.style.display="none"; });
+}, 500);
+function createLaunch(){
+  var btn=$("createLaunchBtn");
+  if (!state.launchCfg) return;
+  var cfg=state.launchCfg.config;
+  var name=$("tokName").value.trim(), symbol=$("tokSymbol").value.trim().toUpperCase(), meta=$("tokMeta").value.trim(), cmeta=$("tokCreatorMeta").value.trim();
+  var f=fnOf(FAC_ABI,"createLaunchWithTokenConfig");
+  var data=encodeCall(f,[name, symbol, meta, cmeta, state.launchCfg.id, Number(cfg.tokenDecimals)]);
+  busy(btn,true,"Sign in wallet…");
+  sendTx(FACTORY, data, cfg.poolCreationFee).then(function(hash){
+    log("Token creation submitted: "+esc(name)+" ("+esc(symbol)+") under Config #"+state.launchCfg.id.toString()+".", hash);
+    busy(btn,true,"Confirming…");
+    return waitReceipt(hash).then(function(rcpt){ return {hash:hash, rcpt:rcpt}; });
+  }).then(function(out){
+    var ev=findEvent(out.rcpt, FACTORY, SDK_ABI.events.LaunchCreated._topic);
+    if (!ev) throw new Error("LaunchCreated event not found in the receipt.");
+    var token="0x"+ev.topics[1].slice(26), curve="0x"+ev.topics[2].slice(26);
+    $("launchState").textContent=symbol+" launched"; $("launchState").className="pill ok";
+    $("cardLaunch").classList.add("done");
+    $("launchResult").className="result-box show";
+    $("launchResult").innerHTML=
+      '<div class="row"><span class="k">Token</span><span class="mono" style="overflow-wrap:anywhere">'+token+'</span> <button class="copybtn" data-copy="'+token+'">Copy</button> '+addrLink(token)+'</div>'+
+      '<div class="row"><span class="k">Curve</span><span class="mono" style="overflow-wrap:anywhere">'+curve+'</span> <button class="copybtn" data-copy="'+curve+'">Copy</button> '+addrLink(curve)+'</div>'+
+      '<div class="row"><span class="k">Transaction</span>'+txLink(out.hash)+'</div>';
+    setMsg($("launchMsg"),"okm","Token created. Its curve is loaded into step 3 — wrap some ETH to WETH and make the first buy.");
+    log("Token "+esc(symbol)+" created: "+addrLink(token)+" · curve "+addrLink(curve)+".", out.hash);
+    $("loadAddr").value=curve;
+    loadLaunch();
+    refreshFees();
+  }).catch(function(e){
+    setMsg($("launchMsg"),"err","Token creation failed: "+esc(e.message||String(e)));
+  }).finally(function(){ busy(btn,false); updateCreateButtons(); });
+}
+
+/* ================= STEP 3 · TRADE ================= */
+var STATUS_LABEL={0:"Uninitialized",1:"Active — trading open",2:"Ready to migrate",3:"Migrated to ARL pool"};
+function loadLaunch(){
+  var addr=$("loadAddr").value.trim();
+  if (!isAddr(addr)) { setMsg($("tradeMsg"),"err","Enter a valid token or curve address."); $("tradeBody").style.display="block"; return Promise.resolve(); }
+  clearMsg($("tradeMsg"));
+  return callFn(FAC_ABI, FACTORY, "tokenForCurve", [addr]).then(function(tok){
+    if (BigInt(tok)!==0n) return {curve:addr, token:tok};
+    return callFn(FAC_ABI, FACTORY, "curveForToken", [addr]).then(function(cur){
+      if (BigInt(cur)===0n) throw new Error("This address is not an Ammora V4 launch (no curve/token mapping in the factory).");
+      return {curve:cur, token:addr};
+    });
+  }).then(function(pair){
+    state.trade={curve:pair.curve, token:pair.token};
+    $("tradeBody").style.display="block";
+    return refreshTrade();
+  }).catch(function(e){
+    setMsg($("tradeMsg"),"err","Load failed: "+esc(e.message||String(e)));
+    $("tradeBody").style.display="block";
+  });
+}
+function refreshTrade(){
+  var t=state.trade; if (!t) return Promise.resolve();
+  var names=["status","baseToken","quoteToken","creator","configId","baseReserve","quoteReserve","migrationQuoteThreshold","canonicalPool","sqrtPrice","currentFeeBps"];
+  var calls=names.map(function(n){ return callFn(CURVE_ABI, t.curve, n, []); });
+  calls.push(erc20(t.token,"name",[]), erc20(t.token,"symbol",[]), erc20(t.token,"decimals",[]));
+  return Promise.all(calls).then(function(r){
+    names.forEach(function(n,i){ t[n]=r[i]; });
+    t.name=r[11]; t.symbol=r[12]; t.decimals=Number(r[13]); t.quoteDecimals=18;
+    t.status=Number(t.status);
+    $("tradeState").textContent=t.symbol+" · "+STATUS_LABEL[t.status]; $("tradeState").className="pill "+(t.status===1?"ok":(t.status>=2?"warn":""));
+    kvRender($("tradeKv"), [
+      ["Token", esc(t.name)+" ("+esc(t.symbol)+") · "+addrLink(t.token)],
+      ["Curve", addrLink(t.curve)],
+      ["Creator", addrLink(t.creator)],
+      ["Status", STATUS_LABEL[t.status]],
+      ["Spot price", fmtPrice(t.sqrtPrice, t.decimals, 18)+" WETH"],
+      ["Quote reserve", fmtUnits(t.quoteReserve, 18, 6)+" WETH"],
+      ["Base reserve", fmtUnits(t.baseReserve, t.decimals, 2)+" "+esc(t.symbol)],
+      ["Curve fee now", (Number(t.currentFeeBps)/100).toFixed(2)+"%"],
+      ["Canonical ARL pool", BigInt(t.canonicalPool)===0n? "Not migrated yet" : addrLink(t.canonicalPool)]
+    ]);
+    var thr=BigInt(t.migrationQuoteThreshold), res=BigInt(t.quoteReserve);
+    var pct=thr>0n? Number(res*10000n/thr)/100 : 0;
+    $("progFill").style.width=Math.min(100,pct).toFixed(2)+"%";
+    $("progLabel").textContent=fmtUnits(res,18,6)+" / "+fmtUnits(thr,18,6)+" WETH · "+pct.toFixed(2)+"%";
+    $("curveActions").style.display = t.status>=2? "flex":"none";
+    $("migrateBtn").style.display = t.status===2? "":"none";
+    $("swapBtn").disabled = t.status!==1;
+    return refreshBalances();
+  }).then(function(){ updateQuote(); }).catch(function(e){
+    setMsg($("tradeMsg"),"err","Curve read failed: "+esc(e.message||String(e)));
+  });
+}
+function refreshBalances(){
+  var t=state.trade; if (!t) return Promise.resolve();
+  var balEl=$("balRow");
+  if (!state.account){ balEl.innerHTML='<span class="balchip">Connect a wallet to see balances</span>'; $("tradeBalHint").textContent=""; return Promise.resolve(); }
+  return Promise.all([
+    getBalance(state.account),
+    erc20(WETH,"balanceOf",[state.account]),
+    erc20(t.token,"balanceOf",[state.account])
+  ]).then(function(b){
+    t.balEth=b[0]; t.balQuote=b[1]; t.balBase=b[2];
+    balEl.innerHTML=
+      '<span class="balchip">ETH <b class="mono">'+fmtUnits(b[0],18,5)+'</b></span>'+
+      '<span class="balchip">WETH <b class="mono">'+fmtUnits(b[1],18,5)+'</b></span>'+
+      '<span class="balchip">'+esc(t.symbol||"")+' <b class="mono">'+fmtUnits(b[2],t.decimals,4)+'</b></span>';
+    updateBalHint();
+  }).catch(function(){});
+}
+function updateBalHint(){
+  var t=state.trade; if (!t||!state.account) return;
+  $("tradeBalHint").textContent = state.side==="buy" ? "Balance: "+fmtUnits(t.balQuote||0n,18,6)+" WETH" : "Balance: "+fmtUnits(t.balBase||0n,t.decimals,4)+" "+(t.symbol||"");
+}
+function setSide(side){
+  state.side=side;
+  $("tabBuy").className = side==="buy"? "on-buy":"";
+  $("tabSell").className = side==="sell"? "on-sell":"";
+  $("tradeAmountLabel").textContent = side==="buy"? "You pay (WETH)":"You sell ("+(state.trade? state.trade.symbol:"token")+")";
+  $("swapBtn").textContent = side==="buy"? "Buy":"Sell";
+  updateBalHint(); updateQuote();
+}
+var updateQuote=debounce(function(){
+  var t=state.trade; var box=$("quoteBox");
+  state.quote=null;
+  if (!t || t.status!==1){ box.className="quotebox"; return; }
+  var inDec = state.side==="buy"? 18 : t.decimals;
+  var raw;
+  try { raw=parseUnits($("tradeAmount").value||"0", inDec); } catch(e){ box.className="quotebox"; $("swapBtn").disabled=true; return; }
+  if (raw<=0n){ box.className="quotebox"; $("swapBtn").disabled=true; return; }
+  state.quoteAmountRaw=raw;
+  var baseForQuote = state.side==="sell";
+  callFn(CURVE_ABI, t.curve, "quoteExactInput", [raw, baseForQuote]).then(function(q){
+    state.quote=q;
+    var outDec = state.side==="buy"? t.decimals : 18;
+    var outSym = state.side==="buy"? t.symbol : "WETH";
+    var inSym = state.side==="buy"? "WETH" : t.symbol;
+    var slip=parseFloat($("slippage").value)||0;
+    var minOut=q.result.amountOut * BigInt(Math.round((100-Math.min(slip,50))*100)) / 10000n;
+    var rows=
+      '<div class="qrow"><span>You receive (est.)</span><span class="mono">'+fmtUnits(q.result.amountOut, outDec, 6)+" "+esc(outSym)+'</span></div>'+
+      '<div class="qrow"><span>Curve fee</span><span class="mono">'+fmtUnits(q.fee, inDec, 8)+" "+esc(inSym)+'</span></div>'+
+      '<div class="qrow"><span>Minimum received ('+slip+'% slippage)</span><span class="mono">'+fmtUnits(minOut, outDec, 6)+" "+esc(outSym)+'</span></div>';
+    if (q.result.amountLeft>0n){
+      rows+='<div class="qrow"><span>Unused input</span><span class="mono">'+fmtUnits(q.result.amountLeft, inDec, 6)+" "+esc(inSym)+'</span></div>';
+      if (state.side==="buy") rows+='<p style="margin:8px 0 0;color:var(--warn-ink)">This is the final fill: the curve only consumes part of your input, the rest stays in your wallet, and the launch becomes ready to migrate.</p>';
+      else rows+='<p style="margin:8px 0 0;color:var(--danger)">Partial sells are not supported — reduce the amount.</p>';
+    }
+    box.innerHTML=rows; box.className="quotebox show";
+    $("swapBtn").disabled = !(state.account && !(state.side==="sell" && q.result.amountLeft>0n));
+  }).catch(function(e){
+    box.className="quotebox"; $("swapBtn").disabled=true;
+    setMsg($("tradeMsg"),"inf","Quote failed: "+esc(e.message||String(e)));
+  });
+}, 450);
+function doSwap(){
+  var t=state.trade, btn=$("swapBtn");
+  if (!t||!state.quote||!state.account) return;
+  var baseForQuote = state.side==="sell";
+  var inToken = baseForQuote? t.token : WETH;
+  var amountIn=state.quoteAmountRaw;
+  var slip=parseFloat($("slippage").value)||0;
+  var minOut=state.quote.result.amountOut * BigInt(Math.round((100-Math.min(slip,50))*100)) / 10000n;
+  var allowPartial = !baseForQuote && state.quote.result.amountLeft>0n;
+  var deadline=BigInt(Math.floor(Date.now()/1000)+1800);
+  busy(btn,true,"Checking allowance…");
+  erc20(inToken,"allowance",[state.account, t.curve]).then(function(al){
+    if (BigInt(al) < amountIn){
+      log("Approving the curve to spend "+(baseForQuote? t.symbol:"WETH")+"…");
+      return sendTx(inToken, encodeCall(fnOf(ERC20_ABI,"approve"),[t.curve, amountIn]), 0n)
+        .then(function(h){ log("Approval submitted.", h); return waitReceipt(h); })
+        .then(function(){ busy(btn,true,"Sign swap in wallet…"); });
+    }
+    busy(btn,true,"Sign swap in wallet…");
+  }).then(function(){
+    var data=encodeCall(fnOf(CURVE_ABI,"swapExactInput"),[amountIn, minOut, baseForQuote, allowPartial, state.account, deadline]);
+    return sendTx(t.curve, data, 0n);
+  }).then(function(hash){
+    log((baseForQuote? "Sell":"Buy")+" submitted on "+esc(t.symbol)+"'s curve.", hash);
+    busy(btn,true,"Confirming…");
+    return waitReceipt(hash).then(function(rcpt){ return {hash:hash, rcpt:rcpt}; });
+  }).then(function(out){
+    var ev=findEvent(out.rcpt, t.curve, SDK_ABI.events.Swap._topic);
+    var note="";
+    if (ev){
+      var words=ev.data.replace(/^0x/,"");
+      var amountOut=BigInt("0x"+words.slice(128,192));
+      var outDec=baseForQuote? 18:t.decimals;
+      note=" Received "+fmtUnits(amountOut, outDec, 6)+" "+(baseForQuote? "WETH":t.symbol)+".";
+    }
+    setMsg($("tradeMsg"),"okm","Swap confirmed."+note);
+    log("Swap confirmed on "+esc(t.symbol)+"."+note, out.hash);
+    if (state.trade && state.trade.status===1) $("cardTrade").classList.add("done");
+    return refreshTrade();
+  }).catch(function(e){
+    setMsg($("tradeMsg"),"err","Swap failed: "+esc(e.message||String(e)));
+  }).finally(function(){ busy(btn,false); });
+}
+function doWrap(){
+  var t=state.trade, btn=$("wrapBtn");
+  if (!state.account){ setMsg($("tradeMsg"),"err","Connect your wallet first."); return; }
+  var raw;
+  try { raw=parseUnits($("tradeAmount").value||"0", 18); } catch(e){ setMsg($("tradeMsg"),"err","Enter the ETH amount to wrap in the amount field."); return; }
+  if (raw<=0n){ setMsg($("tradeMsg"),"err","Enter the ETH amount to wrap in the amount field."); return; }
+  busy(btn,true,"Sign in wallet…");
+  sendTx(WETH, encodeCall(fnOf(WETH_ABI,"deposit"),[]), raw).then(function(hash){
+    log("Wrap submitted: "+fmtUnits(raw,18,6)+" ETH → WETH.", hash);
+    return waitReceipt(hash);
+  }).then(function(){
+    setMsg($("tradeMsg"),"okm","Wrapped "+fmtUnits(raw,18,6)+" ETH to WETH.");
+    if (state.account) getBalance(state.account).then(function(b){ $("walletBal").textContent=fmtUnits(b,18,4)+" ETH"; }).catch(function(){});
+    return refreshBalances();
+  }).catch(function(e){ setMsg($("tradeMsg"),"err","Wrap failed: "+esc(e.message||String(e))); })
+  .finally(function(){ busy(btn,false); });
+}
+function doMigrate(){
+  var t=state.trade, btn=$("migrateBtn");
+  busy(btn,true,"Sign in wallet…");
+  sendTx(t.curve, encodeCall(fnOf(CURVE_ABI,"migrate"),[]), 0n).then(function(hash){
+    log("Migration submitted for "+esc(t.symbol)+".", hash);
+    busy(btn,true,"Confirming…");
+    return waitReceipt(hash).then(function(rcpt){ return {hash:hash, rcpt:rcpt}; });
+  }).then(function(out){
+    setMsg($("tradeMsg"),"okm","Migrated. The canonical ARL pool is live — trading continues there.");
+    log(esc(t.symbol)+" graduated to its ARL pool.", out.hash);
+    return refreshTrade();
+  }).catch(function(e){ setMsg($("tradeMsg"),"err","Migration failed: "+esc(e.message||String(e))); })
+  .finally(function(){ busy(btn,false); });
+}
+function doSurplus(){
+  var t=state.trade, btn=$("surplusBtn");
+  busy(btn,true,"Sign in wallet…");
+  sendTx(t.curve, encodeCall(fnOf(CURVE_ABI,"claimSurplus"),[]), 0n).then(function(hash){
+    log("Surplus claim submitted for "+esc(t.symbol)+".", hash);
+    return waitReceipt(hash).then(function(rcpt){ return {hash:hash, rcpt:rcpt}; });
+  }).then(function(out){
+    setMsg($("tradeMsg"),"okm","Surplus claimed and split between protocol, creator and partner per the Config.");
+    log("Surplus claimed for "+esc(t.symbol)+".", out.hash);
+  }).catch(function(e){ setMsg($("tradeMsg"),"err","Surplus claim failed: "+esc(e.message||String(e))); })
+  .finally(function(){ busy(btn,false); });
+}
+
+/* ================= STEP 4 · FEES ================= */
+function refreshFees(){
+  var rows=[["FeeVault", addrLink(state.feeVault)]];
+  if (!state.account){
+    rows.push(["Status","Connect a wallet to read claimable fees"]);
+    kvRender($("feesKv"), rows);
+    $("feesState").textContent="Wallet not connected";
+    $("claimWethBtn").disabled=true; $("claimTokBtn").style.display="none";
+    return Promise.resolve();
+  }
+  var jobs=[callFn(VAULT_ABI, state.feeVault, "claimable", [WETH, state.account])];
+  if (state.trade) jobs.push(callFn(VAULT_ABI, state.feeVault, "claimable", [state.trade.token, state.account]));
+  return Promise.all(jobs).then(function(res){
+    state.claimWeth=BigInt(res[0]);
+    rows.push(["Claimable WETH", fmtUnits(state.claimWeth,18,8)+" WETH"]);
+    $("claimWethBtn").disabled = state.claimWeth<=0n;
+    if (state.trade && res[1]!=null){
+      state.claimTok=BigInt(res[1]);
+      rows.push(["Claimable "+state.trade.symbol, fmtUnits(state.claimTok, state.trade.decimals, 6)+" "+esc(state.trade.symbol)]);
+      $("claimTokBtn").style.display="";
+      $("claimTokBtn").textContent="Claim "+state.trade.symbol;
+      $("claimTokBtn").disabled = state.claimTok<=0n;
+    } else $("claimTokBtn").style.display="none";
+    kvRender($("feesKv"), rows);
+    $("feesState").textContent="For "+shortAddr(state.account); $("feesState").className="pill ok";
+  }).catch(function(e){
+    kvRender($("feesKv"), rows.concat([["Status","FeeVault read failed"]]));
+  });
+}
+function doClaim(token, btn){
+  busy(btn,true,"Sign in wallet…");
+  sendTx(state.feeVault, encodeCall(fnOf(VAULT_ABI,"claim"),[token, state.account]), 0n).then(function(hash){
+    log("Fee claim submitted.", hash);
+    return waitReceipt(hash).then(function(rcpt){ return {hash:hash, rcpt:rcpt}; });
+  }).then(function(out){
+    setMsg($("feesMsg"),"okm","Fees claimed to your wallet.");
+    log("Fees claimed from the FeeVault.", out.hash);
+    $("cardFees").classList.add("done");
+    return refreshFees();
+  }).catch(function(e){ setMsg($("feesMsg"),"err","Claim failed: "+esc(e.message||String(e))); })
+  .finally(function(){ busy(btn,false); });
+}
+
+/* ================= wiring & init ================= */
+function renderAddrList(){
+  $("addrList").innerHTML=
+    '<div class="row"><span class="k">Launch factory</span>'+addrLink(FACTORY)+'</div>'+
+    '<div class="row"><span class="k">Config registry</span>'+addrLink(REGISTRY)+'</div>'+
+    '<div class="row"><span class="k">FeeVault</span>'+addrLink(state.feeVault)+'</div>'+
+    '<div class="row"><span class="k">WETH (quote asset)</span>'+addrLink(WETH)+'</div>';
+}
+function refreshNet(){
+  return rpcFetch("eth_blockNumber", []).then(function(h){
+    $("netDot").className="dot live";
+    $("netBlock").textContent="chain 91342 · block "+parseInt(h,16).toLocaleString("en-US");
+  }).catch(function(){
+    $("netDot").className="dot bad";
+    $("netBlock").textContent="chain 91342 · RPC unreachable";
+  });
+}
+function init(){
+  renderAddrList();
+  refreshNet(); setInterval(refreshNet, 20000);
+  callFn(FAC_ABI, FACTORY, "feeVault", []).then(function(fv){
+    if (isAddr(fv)) { state.feeVault=fv; renderAddrList(); refreshFees(); }
+  }).catch(function(){});
+  loadTemplate();
+  refreshFees();
+  $("connectBtn").addEventListener("click", connectWallet);
+  $("tplLoadBtn").addEventListener("click", loadTemplate);
+  ["saleSupply","threshold","rcPartner","rcLp","rcLeftover"].forEach(function(id){ $(id).addEventListener("input", debounce(previewDerive, 250)); });
+  $("rcOwner").addEventListener("input", debounce(previewDerive, 250));
+  $("createConfigBtn").addEventListener("click", createConfig);
+  $("launchConfigLoadBtn").addEventListener("click", loadLaunchConfig);
+  ["tokName","tokSymbol"].forEach(function(id){ $(id).addEventListener("input", function(){ updateCreateButtons(); }); });
+  $("tokMeta").addEventListener("input", function(){ updateCreateButtons(); updatePrediction(); });
+  $("createLaunchBtn").addEventListener("click", createLaunch);
+  $("loadLaunchBtn").addEventListener("click", loadLaunch);
+  $("tabBuy").addEventListener("click", function(){ setSide("buy"); });
+  $("tabSell").addEventListener("click", function(){ setSide("sell"); });
+  $("tradeAmount").addEventListener("input", updateQuote);
+  $("slippage").addEventListener("input", updateQuote);
+  $("maxBtn").addEventListener("click", function(){
+    var t=state.trade; if (!t||!state.account) return;
+    var bal = state.side==="buy"? t.balQuote : t.balBase;
+    var dec = state.side==="buy"? 18 : t.decimals;
+    if (bal!=null) { $("tradeAmount").value=fmtUnits(bal, dec, 18).replace(/,/g,""); updateQuote(); }
+  });
+  $("swapBtn").addEventListener("click", doSwap);
+  $("wrapBtn").addEventListener("click", doWrap);
+  $("migrateBtn").addEventListener("click", doMigrate);
+  $("surplusBtn").addEventListener("click", doSurplus);
+  $("feesRefreshBtn").addEventListener("click", refreshFees);
+  $("claimWethBtn").addEventListener("click", function(){ doClaim(WETH, this); });
+  $("claimTokBtn").addEventListener("click", function(){ if (state.trade) doClaim(state.trade.token, this); });
+  document.addEventListener("click", function(e){
+    var b=e.target.closest ? e.target.closest("[data-copy]") : null;
+    if (b && navigator.clipboard) navigator.clipboard.writeText(b.getAttribute("data-copy")).then(function(){ b.textContent="Copied"; setTimeout(function(){ b.textContent="Copy"; }, 1200); }).catch(function(){});
+  });
+  if (window.ethereum && window.ethereum.on){
+    window.ethereum.on("accountsChanged", function(accs){
+      if (accs && accs.length){ state.account=accs[0]; onAccountReady(); }
+      else { state.account=null; $("walletChip").classList.remove("on"); $("connectBtn").textContent="Connect wallet"; refreshFees(); }
+    });
+    window.ethereum.on("chainChanged", function(){ refreshNet(); });
+  }
+  if (!window.ethereum) $("connectBtn").textContent="No wallet detected";
+}
+document.addEventListener("DOMContentLoaded", function(){
+  try { init(); } catch(e){ log("Init error: "+esc(e.message||String(e))); }
+});
+</script>
+</script>
+  </body>
+</html>
